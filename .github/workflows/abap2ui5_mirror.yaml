@@ -1,0 +1,39 @@
+name: abap2ui5 mirror
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  pr_ajson_changes:
+    # Origin repo only
+    permissions:
+      contents: write  # for peter-evans/create-pull-request to create branch
+      pull-requests: write  # for peter-evans/create-pull-request to create a PR
+    if: github.repository == 'abap2UI5/abap2UI5'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+    - name: run
+      run: |
+        git clone https://github.com/abap2UI5/mirror-demo-abap2UI5.git
+        ls -l
+        rm src/abap2UI5/z*
+        cp mirror-demo-abap2UI5/src/z* src/abap2UI5/
+        rm -rf mirror-demo-abap2UI5
+        git status
+    - name: Open PR
+      uses: peter-evans/create-pull-request@v3
+      with:
+        title: ajson, Automatic Update
+        branch: automatic/abap2UI5
+        body: |
+          Automatic update from mirror
+          https://github.com/abap2UI5/mirror-demo-abap2UI5
